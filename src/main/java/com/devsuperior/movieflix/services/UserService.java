@@ -8,9 +8,12 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import com.devsuperior.movieflix.dto.UserDTO;
 import com.devsuperior.movieflix.entity.User;
 import com.devsuperior.movieflix.repositories.UserRepository;
+import com.devsuperior.movieflix.security.AuthorizationService;
 
 @Service
 public class UserService implements UserDetailsService {
@@ -20,9 +23,13 @@ public class UserService implements UserDetailsService {
 	@Autowired
 	public UserRepository userRepository;
 	
-	public List<User> findUser() {
-		return userRepository.findAll();
-	}
+	@Autowired
+    private AuthorizationService authService;
+	
+    @Transactional(readOnly = true)
+    public UserDTO getProfile() {
+        return new UserDTO(authService.authenticated());
+    }
 
 	@Override
 	public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
